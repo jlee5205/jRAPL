@@ -1,1 +1,0 @@
-python3 -m jcarbon.nvml.server 

@@ -1,1 +1,1 @@
-java -jar bazel-bin/service/src/main/java/jcarbon/server/server_deploy.jar -nvml
+nohup java -jar bazel-bin/service/src/main/java/jcarbon/server/server_deploy.jar -nvml &
