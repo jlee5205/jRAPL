@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -107,30 +108,45 @@ public final class Powercap {
       logger.warning("couldn't check the maximum energy; powercap likely not available");
       return new double[0][0];
     }
+    // TODO: this is a hack and we need to formalize it
     try {
-      return Files.list(POWERCAP_ROOT)
-          .filter(p -> p.getFileName().toString().contains("intel-rapl"))
-          .map(
-              socket -> {
-                try {
-                  return Files.list(socket)
-                      .filter(p -> p.getFileName().toString().contains("max_energy_range_uj"))
-                      .mapToDouble(
-                          component -> {
-                            try {
-                              return Double.parseDouble(Files.readString(component)) / 1000000;
-                            } catch (Exception e) {
-                              return 0;
-                            }
-                          })
-                      .toArray();
-                } catch (Exception e) {
-                  logger.warning(
-                      String.format("couldn't check the maximum energy for socket %s", socket));
-                  return 0;
-                }
-              })
-          .toArray(double[][]::new);
+      double[][] maxEnergy =
+          Files.list(POWERCAP_ROOT)
+              .filter(p -> p.getFileName().toString().contains("intel-rapl"))
+              .map(
+                  socket -> {
+                    double[] overflowValues = new double[2];
+                    try {
+                      overflowValues[0] =
+                          Double.parseDouble(
+                                  Files.readString(
+                                      Path.of(socket.toString(), "max_energy_range_uj")))
+                              / 1000000;
+                    } catch (Exception e) {
+                      logger.warning(
+                          String.format("couldn't check the maximum energy for socket %s", socket));
+                    }
+                    try {
+                      overflowValues[1] =
+                          Double.parseDouble(
+                                  Files.readString(
+                                      Path.of(
+                                          socket.toString(),
+                                          String.format("%s:0", socket.getFileName()),
+                                          "max_energy_range_uj")))
+                              / 1000000;
+                    } catch (Exception e) {
+                      logger.warning(
+                          String.format("couldn't check the maximum energy for socket %s", socket));
+                    }
+                    logger.info(
+                        String.format(
+                            "retrieved overflow values for %s: %s",
+                            socket.getFileName(), Arrays.toString(overflowValues)));
+                    return overflowValues;
+                  })
+              .toArray(double[][]::new);
+      return maxEnergy;
     } catch (Exception e) {
       logger.warning("couldn't check the maximum energy; powercap likely not available");
       return new double[0][0];
