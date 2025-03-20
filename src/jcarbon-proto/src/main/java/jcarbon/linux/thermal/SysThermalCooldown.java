@@ -7,17 +7,6 @@ import org.apache.commons.cli.Options;
 
 final class SysThermalCooldown {
   private static final Logger logger = getLogger();
-
-  private static class CooldownArgs {
-    private final int periodMillis;
-    private final int targetTemperature;
-
-    private CooldownArgs(int periodMillis, int targetTemperature) {
-      this.periodMillis = periodMillis;
-      this.targetTemperature = targetTemperature;
-    }
-  }
-
   private static final Integer DEFAULT_PERIOD_MILLIS = 1000;
 
   public static ArrayList<Integer> searchZones(String type){
@@ -62,7 +51,17 @@ final class SysThermalCooldown {
     double elapsed = (end - start) / 1000.0;
     logger.info(String.format("Cooling down to %s Celsius took %s seconds", temperature, elapsed));
   }
+  
+  private static class CooldownArgs {
+    private final int periodMillis;
+    private final int targetTemperature;
 
+    private CooldownArgs(int periodMillis, int targetTemperature) {
+      this.periodMillis = periodMillis;
+      this.targetTemperature = targetTemperature;
+    }
+  }
+  
   private static CooldownArgs getCooldownArgs(String[] args) throws Exception {
     Option periodOption =
         Option.builder("p")
