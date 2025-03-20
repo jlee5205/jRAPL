@@ -20,7 +20,7 @@ final class SysThermalCooldown {
 
   private static final Integer DEFAULT_PERIOD_MILLIS = 1000;
 
-  private static ArrayList<Integer> searchZones(String type){
+  public static ArrayList<Integer> searchZones(String type){
     ArrayList<Integer> zoneIds = new ArrayList<>();
     for(int zone: SysThermal.ZONE_COUNT){
       if(SysThermal.getZoneType(zone).equals(type)){
