@@ -30,11 +30,15 @@ public final class SysThermal {
 
     private static final Path SYS_THERMAL = 
       Paths.get("/sys", "class", "thermal");
-    private static final int ZONE_COUNT = getThermalZoneCount();
     private static final Map<Integer, String> ZONES = getZones();
+    public static final int ZONE_COUNT = getThermalZoneCount();
 
     public static int getTemperature(int zone){
       return readCounter(zone, "temp");
+    }
+
+    public static String getZoneType(int zone) {
+      return ZONES.get(zone);
     }
 
     public static Optional<ThermalZonesSample> sample() {
